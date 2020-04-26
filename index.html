@@ -6,20 +6,167 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="initVideo.js"></script>
     <style>
-        .video {
+
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .Video-Container {
+            display: inline-block;
             width: 300px;
             height: 200px;
         }
+
+        .Video-Video {
+            z-index: 1000;
+            background-color: #000;
+            width: 300px;
+            height: 200px;
+            transition: all ease-in 500ms;
+            transform: translateX(0px) translateY(0px);
+            cursor: pointer;
+        }
+
+        .Video-Container_full > .Video-Video {
+            height: 100vh;
+            width: 100%;
+            transition: all ease-in 500ms;
+            cursor: initial;
+        }
+
+        .Video-Controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 50px;
+            width: 100%;
+            background: #cecece;
+            transform: translateY(50px);
+            transition: all ease-in 100ms;
+        }
+
+        .Video-Container_full > .Video-Controls {
+            z-index: 1001;
+            transform: translateY(0px);
+            transition: all ease-in 100ms 500ms;
+        }
+
+        .Diagram_sound {
+            width: 10px;
+            height: 30px;
+        }
+        .Diagram-Item {
+            width: 100%;
+            height: 0;
+            background-color: darkcyan;
+        }
+
     </style>
 </head>
 <body>
 
-<video id="video-1" class="video" controls muted autoplay></video>
-<video id="video-2" class="video" controls muted autoplay></video>
+<div class="Video-Container">
+    <video id="video-1" class="Video-Video" muted autoplay></video>
+    <div class="Video-Controls">
+        <button class="Video-Button Video-Button_all">Все камеры</button>
+        <label>
+            Конткраст
+            <input class="Video-Button Video-Button-contrast" type="range" value="1" min="0" max="3" step="0.05">
+        </label>
+        <label >
+            Яркость
+            <input class="Video-Button Video-Button-brightness" type="range" value="1" min="0" max="3" step="0.05">
+        </label>
+    </div>
+</div>
+<div class="Video-Container">
+    <video id="video-2" class="Video-Video" controls muted autoplay></video>
+    <div class="Video-Controls">
+        <button class="Video-Button Video-Button_all">Все камеры</button>
+        <label>
+            Конткраст
+            <input class="Video-Button Video-Button-contrast" type="range" value="1" min="0" max="3" step="0.05">
+        </label>
+        <label >
+            Яркость
+            <input class="Video-Button Video-Button-brightness" type="range" value="1" min="0" max="3" step="0.05">
+        </label>
+    </div>
+</div>
 <br>
-<video id="video-3" class="video" controls muted autoplay></video>
-<video id="video-4" class="video" controls muted autoplay></video>
+<div class="Video-Container">
+    <video id="video-3" class="Video-Video" muted autoplay></video>
+    <div class="Video-Controls">
+        <button class="Video-Button Video-Button_all">Все камеры</button>
+        <label>
+            Конткраст
+            <input class="Video-Button Video-Button-contrast" type="range" value="1" min="0" max="3" step="0.05">
+        </label>
+        <label >
+            Яркость
+            <input class="Video-Button Video-Button-brightness" type="range" value="1" min="0" max="3" step="0.05">
+        </label>
+    </div>
+</div>
+<div class="Video-Container">
+    <video id="video-4" class="Video-Video" muted autoplay></video>
+    <div class="Video-Controls">
+        <button class="Video-Button Video-Button_all">Все камеры</button>
+        <label>
+            Конткраст
+            <input class="Video-Button Video-Button-contrast" type="range" value="1" min="0" max="3" step="0.05">
+        </label>
+        <label >
+            Яркость
+            <input class="Video-Button Video-Button-brightness" type="range" value="1" min="0" max="3" step="0.05">
+        </label>
+    </div>
+</div>
+<div id="volume-text"></div>
+<div id="volume-meter"></div>
 <script>
+    document.getElementsByTagName('body')[0].addEventListener('click', function (ev) {
+        if (ev.target.classList.contains('Video-Video')) {
+            const container = ev.target.parentElement;
+            const classes = container.classList;
+            ev.target.style.transform = "translateX(-" + ev.target.offsetLeft + "px) translateY(-" + ev.target.offsetTop + "px)";
+            ev.target.style.position = 'absolute';
+            classes.add('Video-Container_full');
+        }
+
+        if (ev.target.classList.contains('Video-Button_all')) {
+            const container = ev.target.closest('.Video-Container');
+            const classes = container.classList;
+            const video = container.getElementsByClassName('Video-Video')[0];
+            if (classes.contains('Video-Container_full')) {
+                video.style.transform = "translateX(0) translateY(0)";
+                classes.remove('Video-Container_full');
+                setTimeout(() => {
+                    video.style.position = 'initial';
+                }, 500)
+            }
+        }
+    });
+
+    document.addEventListener('change', (ev) => {
+        if (ev.target.classList.contains('Video-Button-contrast')) {
+            const contrast = ev.target.value;
+            const container = ev.target.closest('.Video-Container');
+            const brightness = container.getElementsByClassName('Video-Button-brightness')[0].value;
+            const video = container.getElementsByClassName('Video-Video')[0];
+            video.style.filter = "contrast(" + contrast + ") brightness(" + brightness + ")";
+        }
+
+        if (ev.target.classList.contains('Video-Button-brightness')) {
+            const container = ev.target.closest('.Video-Container');
+            const brightness = ev.target.value;
+            const contrast = container.getElementsByClassName('Video-Button-contrast')[0].value;
+            const video = container.getElementsByClassName('Video-Video')[0];
+            video.style.filter = "contrast(" + contrast + ") brightness(" + brightness + ")";
+        }
+    });
+
     initVideo(
         document.getElementById('video-1'),
         'http://localhost:9191/master?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fsosed%2Fmaster.m3u8'
@@ -39,6 +186,7 @@
         document.getElementById('video-4'),
         'http://localhost:9191/live?url=http%3A%2F%2Flocalhost%3A3102%2Fstreams%2Fstreet%2Fmaster.m3u8'
     );
+
 
 </script>
 
